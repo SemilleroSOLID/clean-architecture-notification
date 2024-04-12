@@ -1,0 +1,29 @@
+{
+  "name": "event-driven",
+  "version": "1.0.0",
+  "description": "event driven architecture implementation using rabbitmq",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "start:consumer": "ts-node src/index.consumer.ts",
+    "dev:publisher": "nodemon --exec ts-node src/index.publisher.ts",
+    "dev": "nodemon src/index.ts",
+    "lint": "tslint -p tsconfig.json"
+  },
+  "author": "Santiago Granada Aguirre",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/amqplib": "^0.10.5",
+    "nodemon": "^3.1.0",
+    "npm": "^10.5.1",
+    "ts-node": "^10.9.2",
+    "tslint": "^6.1.3",
+    "typescript": "^5.4.4"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.3",
+    "dotenv": "^16.4.5",
+    "logform": "^2.6.0",
+    "winston": "^3.13.0"
+  }
+}
