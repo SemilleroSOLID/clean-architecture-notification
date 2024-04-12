@@ -1,4 +1,4 @@
-# event-driven
+# Event-driven
 
 Event driven example with RabbitMQ
 
