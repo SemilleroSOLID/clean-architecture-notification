@@ -1,4 +1,4 @@
-# uml_notation
+# event-driven
 
 Event driven example with RabbitMQ
 
