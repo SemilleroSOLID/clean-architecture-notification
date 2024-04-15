@@ -1,10 +1,10 @@
-# Event-driven
+# Event Driven
 
 Event driven example with RabbitMQ
 
 ## SetUp
 
-requiere docker-compose
+Requiere docker-compose
 
 ```bash
 docker-compose up -d
@@ -12,7 +12,7 @@ docker-compose up -d
 
 ## Installation
 
-requiere node v14
+Requiere node v14
 
 ```bash
 npm i
@@ -26,8 +26,12 @@ For exect the publisher
 npm run dev:publisher
 ```
 
-for lauch a consumer:
+For lauch a consumer:
 
 ```bash
 npm run start:consumer -- ("whatsapp" | "sms" | "email")
 ```
+
+## Links
+
+[RabbitMQ code explanation](https://medium.com/@santiagogranadaaguirre/d7849ab0c2b6)
