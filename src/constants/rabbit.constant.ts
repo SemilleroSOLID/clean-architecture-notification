@@ -24,34 +24,34 @@ export const RABBIT_CONFIG: IAmqpConfig = {
     },
   ],
   queues: [
-    {
-      name: WHATSAPP_QUEUE,
-      options: { limit: 1000, queueLimit: 1000 },
-    },
+    // {
+    //   name: WHATSAPP_QUEUE,
+    //   options: { limit: 1000, queueLimit: 1000 },
+    // },
     {
       name: EMAIL_QUEUE,
       options: { limit: 1000, queueLimit: 1000 },
     },
-    {
-      name: SMS_QUEUE,
-      options: { limit: 1000, queueLimit: 1000 },
-    },
+    // {
+    //   name: SMS_QUEUE,
+    //   options: { limit: 1000, queueLimit: 1000 },
+    // },
   ],
   binding: [
-    {
-      exchange: EXCHANGE_NAME,
-      queue: WHATSAPP_QUEUE,
-      key: WHATSAPP_KEY,
-    },
+    // {
+    //   exchange: EXCHANGE_NAME,
+    //   queue: WHATSAPP_QUEUE,
+    //   key: WHATSAPP_KEY,
+    // },
     {
       exchange: EXCHANGE_NAME,
       queue: EMAIL_QUEUE,
       key: EMAIL_KEY,
     },
-    {
-      exchange: EXCHANGE_NAME,
-      queue: SMS_QUEUE,
-      key: SMS_KEY,
-    },
+    // {
+    //   exchange: EXCHANGE_NAME,
+    //   queue: SMS_QUEUE,
+    //   key: SMS_KEY,
+    // },
   ],
 };
