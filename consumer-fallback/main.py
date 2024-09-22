@@ -9,7 +9,11 @@ from queue.queue import QueueHandler, QueueCredentials
 load_dotenv()
 
 config = {
-    ConsumerType.EMAIL: "event.drivent.email"
+    ConsumerType.EMAIL: {
+        "queue": "event.drivent.email",
+        "exchange": "event.drivent.exchange",
+        "routing_key": "email",
+    }
 }
 
 def main():
@@ -31,7 +35,9 @@ def main():
         queue_handler = QueueHandler(
             credentials=queue_credentials,
             port=os.getenv('RMQ_PORT'),
-            queue=config[consumer_type],
+            queue=config[consumer_type]["queue"],
+            exchange_name=config[consumer_type]["exchange"],
+            routing_key=config[consumer_type]["routing_key"],
             on_message=consumer.send,
         )
 

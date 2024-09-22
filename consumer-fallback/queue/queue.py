@@ -11,6 +11,8 @@ class QueueCredentials(BaseModel):
 
 class QueueHandler(BaseModel):
     queue: str
+    exchange_name: str
+    routing_key: str
     on_message: Callable
     credentials: QueueCredentials
 
@@ -33,8 +35,10 @@ class QueueHandler(BaseModel):
 
         if not self._channel:
             self._channel = self._connection.channel()
+            self._channel.exchange_declare(exchange=self.exchange_name, exchange_type='direct')
             self._channel.queue_declare(queue=self.queue, durable=True)
             self._channel.basic_qos(prefetch_count=self.prefetch_count)
+            self._channel.queue_bind(exchange=self.exchange_name, queue=self.queue, routing_key=self.routing_key)
 
         self._channel.basic_consume(queue=self.queue, on_message_callback=self.callback)
 
