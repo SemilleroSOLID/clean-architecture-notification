@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { IAmqpConfig } from "~/interfaces/amqpConfig.interface";
+import { IAmqpConfig } from "../interfaces/amqpConfig.interface";
 
 export const EXCHANGE_NAME = "event.drivent.exchange";
 
