@@ -34,6 +34,7 @@ def main():
 
         queue_handler = QueueHandler(
             credentials=queue_credentials,
+            host=os.getenv('RMQ_HOST'),
             port=os.getenv('RMQ_PORT'),
             queue=config[consumer_type]["queue"],
             exchange_name=config[consumer_type]["exchange"],

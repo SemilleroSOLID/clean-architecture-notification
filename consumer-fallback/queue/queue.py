@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Optional
 
 import pika.channel
 import pika.credentials
@@ -17,7 +17,7 @@ class QueueHandler(BaseModel):
     credentials: QueueCredentials
 
     host: str = "localhost"
-    port: int = 5672
+    port: Optional[int] = None
     prefetch_count: int = 1
 
     _connection: pika.BlockingConnection = PrivateAttr(None)
@@ -30,7 +30,10 @@ class QueueHandler(BaseModel):
     def suscribe(self):
         if not self._connection:
             credentials = pika.PlainCredentials(username=self.credentials.user, password=self.credentials.passw)
-            connection_parameters = pika.ConnectionParameters(host=self.host, port=self.port, credentials=credentials)
+            if self.port:
+                connection_parameters = pika.ConnectionParameters(host=self.host, port=self.port, credentials=credentials)
+            else:
+                connection_parameters = pika.ConnectionParameters(host=self.host, credentials=credentials)
             self._connection = pika.BlockingConnection(connection_parameters)
 
         if not self._channel:
