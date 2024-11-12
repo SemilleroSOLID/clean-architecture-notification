@@ -2,7 +2,7 @@ import { ConsumeMessage } from "amqplib";
 import { EMAIL_QUEUE } from "../constants/rabbit.constant";
 import logger from "../utils/logger/logger.util";
 import { Consumer } from "./consumer.service";
-import { IConsumer } from "~/interfaces/consumer.interface";
+import { IConsumer } from "../interfaces/consumer.interface";
 
 export class EmailConsumer extends Consumer implements IConsumer {
   constructor() {
