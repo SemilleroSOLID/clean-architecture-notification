@@ -1,63 +1,35 @@
-# Event Driven
+# Consumidor de notificaciones · Node.js
 
-Event driven example with RabbitMQ
+Consumidor principal del servicio de notificaciones, escrito en TypeScript con `amqplib`. La explicación de la arquitectura (exchange, colas, clases y patrones) está en el [README del repositorio](../README.md).
 
-## SetUp
+## Instalación
 
-Requiere docker compose
-
-```bash
-docker compose up -d
-```
-
-This starts RabbitMQ (`event-driven-rabbitmq`):
-
-| Port    | Use                                                  |
-|---------|------------------------------------------------------|
-| `5673`  | AMQP (used by this consumer and by `clean-architecture-api`) |
-| `15673` | Management UI: http://localhost:15673 (`admin` / `admin`) |
-
-## Installation
-
-Requiere node v20 (see `.nvmrc`)
+Requiere Node.js 20 (ver `.nvmrc`) y Docker.
 
 ```bash
-npm i
-cp .env.example .env
+docker compose up -d          # RabbitMQ en 5673, panel en http://localhost:15673 (admin / admin)
+npm install
+cp .env.example .env          # descomentar AMQP_URL="amqp://admin:admin@localhost:5673/"
 ```
 
-In `.env` uncomment `AMQP_URL="amqp://admin:admin@localhost:5673/"` to use the local RabbitMQ.
+> En Windows, si `ts-node` no se reconoce, `node_modules` se instaló desde otro sistema operativo (Linux o Docker). Borra `node_modules` y ejecuta `npm install` otra vez.
 
-> On Windows, if `ts-node` is not recognized, `node_modules` was installed from another OS (Linux/Docker).
-> Delete `node_modules` and run `npm i` again.
+## Uso
 
-## Usage
+| Comando | Qué hace |
+|---|---|
+| `npm run start:consumer -- email` | Escucha la cola `event.drivent.email`. También acepta `sms` y `whatsapp`. |
+| `npm run dev:publisher` | Publica un mensaje de prueba en cada canal y se cierra a los 5 segundos. |
+| `npm run lint` | Revisa el código con TSLint. |
 
-For exect the publisher
+El backend (`clean-architecture-api`) publica con la routing key `email`, así que para ver sus mensajes se usa `npm run start:consumer -- email`.
 
-```bash
-npm run dev:publisher
-```
+## Ejecutar con Docker y ngrok
 
-For lauch a consumer:
+Sirve para conectar un consumidor que corre en otra máquina con el RabbitMQ local.
 
-```bash
-npm run start:consumer -- ("whatsapp" | "sms" | "email")
-```
-
-The `clean-architecture-api` publishes to the `email` routing key (`POST /convocation/sendNotification`),
-so run `npm run start:consumer -- email` to see those messages.
-
-## Links
-
-[RabbitMQ code explanation](https://medium.com/@santiagogranadaaguirre/d7849ab0c2b6)
-
-# How to run project with ngrok?
-
-1. To start the RabbitMQ: `docker compose up -d`
-2. Open TCP socket with ngrok: `ngrok tcp 5673`
-3. In this folder: `docker build . -t solid-notifications-node`
-4. And run: `docker run -e AMQP_URL=amqp://admin:admin@0.tcp.ngrok.io:18191 solid-notifications-node:latest`
-5. Go to consumer fallback folder: `cd consumer-fallback`
-6. Run: `docker build . -t solid-notifications-py`
-7. And then run: `docker run -e RMQ_HOST=0.tcp.ngrok.io -e RMQ_PORT=18191 -e PYTHONUNBUFFERED=1 solid-notifications-py:latest`
+1. Levantar RabbitMQ: `docker compose up -d`
+2. Abrir un túnel TCP: `ngrok tcp 5673`
+3. Construir la imagen: `docker build . -t solid-notifications-node`
+4. Ejecutarla con la dirección del túnel: `docker run -e AMQP_URL=amqp://admin:admin@0.tcp.ngrok.io:18191 solid-notifications-node:latest`
+5. Para el consumidor de Python: `cd ../python`, `docker build . -t solid-notifications-py` y `docker run -e RMQ_HOST=0.tcp.ngrok.io -e RMQ_PORT=18191 -e PYTHONUNBUFFERED=1 solid-notifications-py:latest`

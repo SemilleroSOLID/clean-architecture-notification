@@ -1,16 +1,34 @@
-# Consumer Fallback
-To run this fallback service we strongly recommend to install [pyenv](https://github.com/pyenv/pyenv). In case that you dont want to use pyenv check `.python-version` file to use that python version.
+# Consumidor de respaldo · Python
 
-## Setup project
-To setup run these commands:
-1. `pyenv install`
-2. `pyenv virtualenv venv`
-3. `pyenv activate venv`
-4. `pip install -r requirements.txt`
-5. `cp .env.example .env`
+Consumidor alternativo para la cola de correo, escrito con `pika` y `pydantic`. La explicación de cómo encaja en el sistema está en el [README del repositorio](../README.md).
 
-## Run project
-### Pre-requisites
-Have running the RabbitMQ service
+## Instalación
 
-1. `python main.py email`
+Se recomienda [pyenv](https://github.com/pyenv/pyenv). Si no lo usas, instala la versión indicada en `.python-version` (3.11).
+
+```bash
+pyenv install
+pyenv virtualenv venv
+pyenv activate venv
+pip install -r requirements.txt
+cp .env.example .env
+```
+
+En `.env`, además del usuario y la contraseña, define dónde está RabbitMQ:
+
+| Variable | Valor local |
+|---|---|
+| `RMQ_USER` | `admin` |
+| `RMQ_PASS` | `admin` |
+| `RMQ_HOST` | `localhost` |
+| `RMQ_PORT` | `5673` |
+
+## Uso
+
+Con RabbitMQ corriendo (`docker compose up -d` en `../node`):
+
+```bash
+python main.py email
+```
+
+El consumidor declara el exchange y la cola si no existen, recibe los mensajes de a uno y confirma cada uno después de procesarlo.
