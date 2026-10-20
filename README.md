@@ -234,7 +234,13 @@ python main.py email
 
 ### Probar con el backend
 
-Con el backend corriendo, `POST http://localhost:3001/ms-logica-negocio/api/convocation/sendNotification` con un texto en el cuerpo publica en la routing key `email`, y el consumidor lo muestra.
+Con el backend corriendo, crear, aprobar, rechazar o retirar una solicitud publica en la routing key `email` un evento JSON, y el consumidor lo muestra en su log ([#20](https://github.com/SemilleroSOLID/clean-architecture-api/issues/20)):
+
+```json
+{"event":"REQUEST_STATUS_CHANGED","requestId":9,"studentId":4,"studentName":"Santiago Ramírez López","studentEmail":"santiago.ramirez@ucaldas.test","convocationId":3,"convocationTitle":"Residencia Estudiantil 2027","previousState":"PENDING","newState":"REJECT","comment":"El promedio mínimo para la residencia es 3.5","date":"2026-10-19T23:00:06-05:00"}
+```
+
+`previousState` es `null` cuando la solicitud se acaba de crear y `comment` trae la justificación de un rechazo. La descripción de cada campo está en el [README del API](https://github.com/SemilleroSOLID/clean-architecture-api#eventos-de-notificación). El antiguo endpoint de prueba `sendNotification`, que publicaba texto libre, ya no existe.
 
 ## Cómo agregar un canal nuevo
 
@@ -252,7 +258,7 @@ El backend solo tendría que publicar con la routing key `push`.
 | Tarea | Estado |
 |---|---|
 | Topología de RabbitMQ y consumidores de Node y Python | ✅ |
-| El backend publica un evento en cada cambio de estado de una solicitud | ⏳ [#20](https://github.com/SemilleroSOLID/clean-architecture-api/issues/20) |
+| El backend publica un evento en cada cambio de estado de una solicitud | ✅ [#20](https://github.com/SemilleroSOLID/clean-architecture-api/issues/20) |
 | Envío real del correo al estudiante (hoy el consumidor solo registra el mensaje en el log) | ⏳ [#21](https://github.com/SemilleroSOLID/clean-architecture-api/issues/21) |
 
 El backlog completo está en los [issues de clean-architecture-api](https://github.com/SemilleroSOLID/clean-architecture-api/issues). Explicación del código de RabbitMQ: [artículo en Medium](https://medium.com/@santiagogranadaaguirre/d7849ab0c2b6).
