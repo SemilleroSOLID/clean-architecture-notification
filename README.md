@@ -262,6 +262,8 @@ clean-architecture-notification/
 
 ## Cómo ejecutarlo
 
+> **Para levantar todo el sistema** (backend, base de datos, front, este consumidor, RabbitMQ y Mailpit) se usa el `docker-compose.yml` de [clean-architecture-api](https://github.com/SemilleroSOLID/clean-architecture-api#cómo-ejecutar-todo-el-sistema) con `docker compose up -d --build` ([#27](https://github.com/SemilleroSOLID/clean-architecture-api/issues/27)). Lo que sigue sirve para trabajar solo en este servicio; no levantes los dos compose a la vez, porque usan los mismos puertos.
+
 ### 1. RabbitMQ
 
 ```bash

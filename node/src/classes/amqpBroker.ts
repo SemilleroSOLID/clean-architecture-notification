@@ -40,23 +40,28 @@ export class AmqpBroker {
       logger.error("rabbitMQ host name is undefined! unable to connect");
       return;
     }
-    try {
-      this.connection = await amqp.connect(this.config.connection.amqpUrl);
-      this.channel = await this.connection.createChannel();
-      // One message at a time: the next one is delivered after the previous is acknowledged.
-      await this.channel.prefetch(1);
-      this.connection.on("error", (err: Error) => {
+    // Waits until RabbitMQ accepts connections (for example while its container starts) before going on:
+    // declaring the exchange without a channel would stop the consumer (SemilleroSOLID/clean-architecture-api#27).
+    while (!this.finished) {
+      try {
+        this.connection = await amqp.connect(this.config.connection.amqpUrl);
+        this.channel = await this.connection.createChannel();
+        // One message at a time: the next one is delivered after the previous is acknowledged.
+        await this.channel.prefetch(1);
+        this.connection.on("error", (err: Error) => {
+          this.connection = null;
+          if (err.message !== "connection closing") {
+            logger.error("[Broker-AMQP] connection error", err.message);
+          }
+        });
+        return;
+      } catch (error) {
+        logger.error(
+          `ERROR! [connect] on trying to connection to ${this.config.connection.amqpUrl}, retrying in 1 s`
+        );
         this.connection = null;
-        if (err.message !== "connection closing") {
-          logger.error("[Broker-AMQP] connection error", err.message);
-        }
-      });
-    } catch (error) {
-      logger.error(
-        `ERROR! [connect] on trying to connection to ${this.config.connection.amqpUrl}`
-      );
-      this.connection = null;
-      if (!this.finished) setTimeout(this.connect.bind(this), 1000);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
     }
   }
 

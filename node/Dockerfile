@@ -1,12 +1,9 @@
-FROM node:20 AS builder
+FROM node:20-alpine
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN npm ci
+COPY tsconfig.json ./
 COPY src ./src
+# The defaults of .env.example; docker-compose.yml overrides AMQP_URL and SMTP_HOST with the names of the services
 COPY .env.example .env
-
-FROM node:20
-WORKDIR /app
-COPY --from=builder /app /app
-EXPOSE 3200
 CMD ["npm", "run", "start:consumer", "--", "email"]
