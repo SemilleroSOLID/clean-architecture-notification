@@ -28,4 +28,4 @@ Si solo quieres trabajar en este servicio, sin el resto del sistema, `docker com
 | `npm test` | Pruebas con `node:test`: validación del evento, plantillas, reintentos y mensajes mal formados, con un SMTP simulado. |
 | `npx tsc --noEmit -p .` | Revisa los tipos de TypeScript. |
 
-`npm run lint` existe pero hoy no revisa nada; el motivo está en [Lo que no conviene copiar](../README.md#lo-que-no-conviene-copiar).
+`npm run lint` existe pero hoy no revisa nada: su configuración se llama `tslin.json` (le falta una *t*) y usa TSLint, que está obsoleto. Para revisar el código, usa `npx tsc --noEmit -p .`.

@@ -32,7 +32,7 @@ Este repositorio recibe los eventos que publica el backend ([clean-architecture-
 6. [Estructura de carpetas](#estructura-de-carpetas)
 7. [Cómo ejecutarlo](#cómo-ejecutarlo)
 8. [Cómo agregar un canal nuevo](#cómo-agregar-un-canal-nuevo)
-9. [Lo que no conviene copiar](#lo-que-no-conviene-copiar)
+9. [Patrones de diseño](#patrones-de-diseño)
 
 ## Por qué un servicio aparte
 
@@ -334,17 +334,18 @@ Ejemplo: notificaciones push.
 
 El backend solo tendría que publicar con la routing key `push`.
 
-## Lo que no conviene copiar
+## Patrones de diseño
 
-Están explicados con los demás antipatrones del sistema en el [README del API](https://github.com/SemilleroSOLID/clean-architecture-api#antipatrones-dónde-cómo-y-por-qué); los que tocan este repositorio:
-
-| Qué | Por qué está así | Qué sería lo correcto |
+| Patrón | Dónde | Qué resuelve |
 |---|---|---|
-| La topología (exchange y colas) se declara aquí y también en el backend | Cada servicio puede arrancar aunque el otro no esté. | Un solo dueño de la topología o un contrato compartido. Hoy, si uno cambia el nombre o las opciones, el otro falla: el nombre `event.drivent` (error de escritura de *driven*) está repetido en los dos. |
-| `npm run lint` termina bien pero **no revisa nada** | El archivo de configuración se llama `tslin.json` (falta una *t*) y TSLint está obsoleto desde 2019. | Pasar a ESLint con `typescript-eslint`, como el front. |
-| La contraseña `admin` / `admin` de RabbitMQ está en el código y en los compose | Para que todo arranque sin configurar nada en desarrollo. | Variables de entorno que no se suban al repositorio. |
+| **Publish / Subscribe** | El backend publica en el exchange; este servicio está suscrito a la cola | El backend no espera al correo ni sabe quién lo envía; agregar un canal es agregar un suscriptor. |
+| **Factory** | `ConsumerFactory` (`src/factory/consumer.factory.ts`) y `NewConsumer` (Python) | Elegir el consumidor según el canal que llega por la línea de comandos (`email`, `sms`, `whatsapp`), sin `if`. |
+| **Template Method** | `Consumer` (`src/consumer/consumer.service.ts`) | El procesamiento común de cada mensaje (suscribirse, confirmarlo aunque falle) está en la clase base; cada canal solo escribe `consumeMessage`. |
+| **Adapter** | `SmtpMailer` (`src/notification/mailer.ts`) implementa `IMailer` | El consumidor no conoce `nodemailer`; en las pruebas se reemplaza por un SMTP simulado. |
+| **Retry** | `withRetries` (`src/utils/retry.util.ts`) | Un fallo pasajero del servidor de correo no pierde la notificación: se reintenta, esperando más cada vez. |
+| **Cola de mensajes fallidos** | `event.drivent.email.failed` | Lo que no se pudo procesar se aparta con su motivo, para revisarlo, sin detener el consumidor. |
 
-Más sobre el código de RabbitMQ: [artículo en Medium](https://medium.com/@santiagogranadaaguirre/d7849ab0c2b6). Las issues del sistema están en [clean-architecture-api](https://github.com/SemilleroSOLID/clean-architecture-api/issues).
+Los patrones del backend están en el [README del API](https://github.com/SemilleroSOLID/clean-architecture-api#patrones-de-diseño-implementados). Más sobre el código de RabbitMQ: [artículo en Medium](https://medium.com/@santiagogranadaaguirre/d7849ab0c2b6). Las issues del sistema están en [clean-architecture-api](https://github.com/SemilleroSOLID/clean-architecture-api/issues).
 
 ---
 
