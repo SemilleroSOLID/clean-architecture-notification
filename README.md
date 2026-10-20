@@ -32,7 +32,7 @@ Este repositorio recibe los eventos que publica el backend ([clean-architecture-
 6. [Estructura de carpetas](#estructura-de-carpetas)
 7. [Cómo ejecutarlo](#cómo-ejecutarlo)
 8. [Cómo agregar un canal nuevo](#cómo-agregar-un-canal-nuevo)
-9. [Estado](#estado)
+9. [Lo que no conviene copiar](#lo-que-no-conviene-copiar)
 
 ## Por qué un servicio aparte
 
@@ -171,7 +171,7 @@ Como `index.consumer.ts` depende de la interfaz `IConsumer` y no de una clase co
 
 ## El correo al estudiante
 
-Desde [#21](https://github.com/SemilleroSOLID/clean-architecture-api/issues/21) el `EmailConsumer` de Node envía un correo real por cada evento `REQUEST_STATUS_CHANGED` del backend ([#20](https://github.com/SemilleroSOLID/clean-architecture-api/issues/20)), con `nodemailer`. En desarrollo el servidor SMTP es **Mailpit**: recibe todos los correos y los muestra en http://localhost:8025, sin que lleguen a un buzón real.
+El `EmailConsumer` de Node envía un correo real por cada evento `REQUEST_STATUS_CHANGED` del backend, con `nodemailer`. En desarrollo el servidor SMTP es **Mailpit**: recibe todos los correos y los muestra en http://localhost:8025, sin que lleguen a un buzón real.
 
 | `newState` | Asunto | Contenido |
 |---|---|---|
@@ -221,7 +221,7 @@ Para enviar correos reales basta con cambiar estas variables por las de un servi
 
 ## Consumidor de respaldo en Python
 
-Está en `python/` y consume la misma cola de correo. **Decisión ([#21](https://github.com/SemilleroSOLID/clean-architecture-api/issues/21)): queda como respaldo que solo registra.** Lee el evento y escribe en consola un resumen (solicitud, estudiante, estado anterior y nuevo, motivo), pero **no envía correos**: las plantillas y el envío viven solo en el consumidor de Node, para no mantenerlos duplicados. Sirve para revisar los eventos si el de Node no está disponible y como ejemplo de que cualquier lenguaje puede consumir la misma cola.
+Está en `python/` y consume la misma cola de correo. **Decisión: queda como respaldo que solo registra.** Lee el evento y escribe en consola un resumen (solicitud, estudiante, estado anterior y nuevo, motivo), pero **no envía correos**: las plantillas y el envío viven solo en el consumidor de Node, para no mantenerlos duplicados. Sirve para revisar los eventos si el de Node no está disponible y como ejemplo de que cualquier lenguaje puede consumir la misma cola.
 
 > No ejecutes los dos consumidores a la vez: RabbitMQ reparte los mensajes entre ellos y los que tome el de Python no generarían correo.
 
@@ -262,7 +262,7 @@ clean-architecture-notification/
 
 ## Cómo ejecutarlo
 
-> **Para levantar todo el sistema** (backend, base de datos, front, este consumidor, RabbitMQ y Mailpit) se usa el `docker-compose.yml` de [clean-architecture-api](https://github.com/SemilleroSOLID/clean-architecture-api#cómo-ejecutar-todo-el-sistema) con `docker compose up -d --build` ([#27](https://github.com/SemilleroSOLID/clean-architecture-api/issues/27)). Lo que sigue sirve para trabajar solo en este servicio; no levantes los dos compose a la vez, porque usan los mismos puertos.
+> **Para levantar todo el sistema** (backend, base de datos, front, este consumidor, RabbitMQ y Mailpit) se usa el `docker-compose.yml` de [clean-architecture-api](https://github.com/SemilleroSOLID/clean-architecture-api#empezar-rápido) con `docker compose up -d --build`. Lo que sigue sirve para trabajar solo en este servicio; no levantes los dos compose a la vez, porque usan los mismos puertos.
 
 ### 1. RabbitMQ
 
@@ -315,13 +315,13 @@ python main.py email
 
 ### Probar con el backend
 
-Con el backend corriendo, crear, aprobar, rechazar o retirar una solicitud publica en la routing key `email` un evento JSON; el consumidor envía el correo y lo puedes ver en http://localhost:8025 ([#20](https://github.com/SemilleroSOLID/clean-architecture-api/issues/20)):
+Con el backend corriendo, crear, aprobar, rechazar o retirar una solicitud publica en la routing key `email` un evento JSON; el consumidor envía el correo y lo puedes ver en http://localhost:8025:
 
 ```json
 {"event":"REQUEST_STATUS_CHANGED","requestId":9,"studentId":4,"studentName":"Santiago Ramírez López","studentEmail":"santiago.ramirez@ucaldas.test","convocationId":3,"convocationTitle":"Residencia Estudiantil 2027","previousState":"PENDING","newState":"REJECT","comment":"El promedio mínimo para la residencia es 3.5","date":"2026-10-19T23:00:06-05:00"}
 ```
 
-`previousState` es `null` cuando la solicitud se acaba de crear y `comment` trae la justificación de un rechazo. La descripción de cada campo está en el [README del API](https://github.com/SemilleroSOLID/clean-architecture-api#eventos-de-notificación). El antiguo endpoint de prueba `sendNotification`, que publicaba texto libre, ya no existe.
+`previousState` es `null` cuando la solicitud se acaba de crear y `comment` trae la justificación de un rechazo. La descripción de cada campo está en el [README del API](https://github.com/SemilleroSOLID/clean-architecture-api#eventos-de-notificación).
 
 ## Cómo agregar un canal nuevo
 
@@ -334,15 +334,17 @@ Ejemplo: notificaciones push.
 
 El backend solo tendría que publicar con la routing key `push`.
 
-## Estado
+## Lo que no conviene copiar
 
-| Tarea | Estado |
-|---|---|
-| Topología de RabbitMQ y consumidores de Node y Python | ✅ |
-| El backend publica un evento en cada cambio de estado de una solicitud | ✅ [#20](https://github.com/SemilleroSOLID/clean-architecture-api/issues/20) |
-| Envío real del correo al estudiante, con Mailpit en desarrollo, reintentos y cola de fallidos | ✅ [#21](https://github.com/SemilleroSOLID/clean-architecture-api/issues/21) |
+Están explicados con los demás antipatrones del sistema en el [README del API](https://github.com/SemilleroSOLID/clean-architecture-api#antipatrones-dónde-cómo-y-por-qué); los que tocan este repositorio:
 
-El backlog completo está en los [issues de clean-architecture-api](https://github.com/SemilleroSOLID/clean-architecture-api/issues). Explicación del código de RabbitMQ: [artículo en Medium](https://medium.com/@santiagogranadaaguirre/d7849ab0c2b6).
+| Qué | Por qué está así | Qué sería lo correcto |
+|---|---|---|
+| La topología (exchange y colas) se declara aquí y también en el backend | Cada servicio puede arrancar aunque el otro no esté. | Un solo dueño de la topología o un contrato compartido. Hoy, si uno cambia el nombre o las opciones, el otro falla: el nombre `event.drivent` (error de escritura de *driven*) está repetido en los dos. |
+| `npm run lint` termina bien pero **no revisa nada** | El archivo de configuración se llama `tslin.json` (falta una *t*) y TSLint está obsoleto desde 2019. | Pasar a ESLint con `typescript-eslint`, como el front. |
+| La contraseña `admin` / `admin` de RabbitMQ está en el código y en los compose | Para que todo arranque sin configurar nada en desarrollo. | Variables de entorno que no se suban al repositorio. |
+
+Más sobre el código de RabbitMQ: [artículo en Medium](https://medium.com/@santiagogranadaaguirre/d7849ab0c2b6). Las issues del sistema están en [clean-architecture-api](https://github.com/SemilleroSOLID/clean-architecture-api/issues).
 
 ---
 

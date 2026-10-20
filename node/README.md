@@ -1,35 +1,31 @@
 # Consumidor de notificaciones · Node.js
 
-Consumidor principal del servicio de notificaciones, escrito en TypeScript con `amqplib`. La explicación de la arquitectura (exchange, colas, clases y patrones) está en el [README del repositorio](../README.md).
+Consumidor principal del servicio de notificaciones, escrito en TypeScript con `amqplib` y `nodemailer`. La explicación de la arquitectura (exchange, colas, clases, correos y reintentos) está en el [README del repositorio](../README.md).
 
-## Instalación
+## Ejecutarlo
 
-Requiere Node.js 20 (ver `.nvmrc`) y Docker.
+**Con todo el sistema:** el `docker compose up -d --build` de [clean-architecture-api](https://github.com/SemilleroSOLID/clean-architecture-api#empezar-rápido) ya levanta este consumidor. No hace falta instalar Node.
+
+**Para desarrollarlo** con Node.js 20 (ver `.nvmrc`):
 
 ```bash
-docker compose up -d          # RabbitMQ en 5673, panel en http://localhost:15673 (admin / admin)
+docker compose stop notification   # en clean-architecture-api, para que no haya dos consumidores
 npm install
-cp .env.example .env          # descomentar AMQP_URL="amqp://admin:admin@localhost:5673/"
+cp .env.example .env               # ya trae AMQP_URL y el SMTP de Mailpit
+npm run start:consumer -- email
 ```
 
-> En Windows, si `ts-node` no se reconoce, `node_modules` se instaló desde otro sistema operativo (Linux o Docker). Borra `node_modules` y ejecuta `npm install` otra vez.
+Si solo quieres trabajar en este servicio, sin el resto del sistema, `docker compose up -d` en esta carpeta levanta RabbitMQ y Mailpit (no lo hagas con el compose del API arriba: usan los mismos puertos).
 
-## Uso
+> En Windows, si `ts-node` no se reconoce, `node_modules` se instaló desde otro sistema operativo. Borra `node_modules` y ejecuta `npm install` otra vez.
+
+## Comandos
 
 | Comando | Qué hace |
 |---|---|
-| `npm run start:consumer -- email` | Escucha la cola `event.drivent.email`. También acepta `sms` y `whatsapp`. |
-| `npm run dev:publisher` | Publica un mensaje de prueba en cada canal y se cierra a los 5 segundos. |
-| `npm run lint` | Revisa el código con TSLint. |
+| `npm run start:consumer -- email` | Escucha la cola `event.drivent.email` y envía los correos. También acepta `sms` y `whatsapp`, que solo registran el mensaje. |
+| `npm run dev:publisher` | Publica un evento de ejemplo en la cola de correo (llega a Mailpit) y texto en SMS y WhatsApp. |
+| `npm test` | Pruebas con `node:test`: validación del evento, plantillas, reintentos y mensajes mal formados, con un SMTP simulado. |
+| `npx tsc --noEmit -p .` | Revisa los tipos de TypeScript. |
 
-El backend (`clean-architecture-api`) publica con la routing key `email`, así que para ver sus mensajes se usa `npm run start:consumer -- email`.
-
-## Ejecutar con Docker y ngrok
-
-Sirve para conectar un consumidor que corre en otra máquina con el RabbitMQ local.
-
-1. Levantar RabbitMQ: `docker compose up -d`
-2. Abrir un túnel TCP: `ngrok tcp 5673`
-3. Construir la imagen: `docker build . -t solid-notifications-node`
-4. Ejecutarla con la dirección del túnel: `docker run -e AMQP_URL=amqp://admin:admin@0.tcp.ngrok.io:18191 solid-notifications-node:latest`
-5. Para el consumidor de Python: `cd ../python`, `docker build . -t solid-notifications-py` y `docker run -e RMQ_HOST=0.tcp.ngrok.io -e RMQ_PORT=18191 -e PYTHONUNBUFFERED=1 solid-notifications-py:latest`
+`npm run lint` existe pero hoy no revisa nada; el motivo está en [Lo que no conviene copiar](../README.md#lo-que-no-conviene-copiar).

@@ -25,7 +25,7 @@ En `.env`, además del usuario y la contraseña, define dónde está RabbitMQ:
 
 ## Uso
 
-Con RabbitMQ corriendo (`docker compose up -d` en `../node`):
+Con RabbitMQ corriendo (el compose de [clean-architecture-api](https://github.com/SemilleroSOLID/clean-architecture-api#empezar-rápido), o `docker compose up -d` en `../node`) y **sin** el consumidor de Node escuchando la misma cola (`docker compose stop notification` en el API):
 
 ```bash
 python main.py email
