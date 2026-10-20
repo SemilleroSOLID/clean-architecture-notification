@@ -8,12 +8,14 @@
     "start:consumer": "ts-node src/index.consumer.ts",
     "dev:publisher": "nodemon --exec ts-node src/index.publisher.ts",
     "dev": "nodemon src/index.ts",
-    "lint": "tslint -p tsconfig.json"
+    "lint": "tslint -p tsconfig.json",
+    "test": "node --require ts-node/register --test src/test/emailConsumer.test.ts"
   },
   "author": "Santiago Granada Aguirre",
   "license": "ISC",
   "devDependencies": {
     "@types/amqplib": "^0.10.5",
+    "@types/nodemailer": "^6.4.17",
     "nodemon": "^3.1.0",
     "npm": "^10.5.1",
     "ts-node": "^10.9.2",
@@ -24,6 +26,7 @@
     "amqplib": "^0.10.3",
     "dotenv": "^16.4.5",
     "logform": "^2.6.0",
+    "nodemailer": "^6.10.1",
     "winston": "^3.13.0"
   }
 }

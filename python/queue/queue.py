@@ -24,8 +24,13 @@ class QueueHandler(BaseModel):
     _channel: pika.adapters.blocking_connection.BlockingChannel = PrivateAttr(None)
 
     def callback(self, channel, method, properties, body):
-        self.on_message(properties, body)
-        channel.basic_ack(delivery_tag=method.delivery_tag)
+        # An error with one message never stops the consumer (SemilleroSOLID/clean-architecture-api#21).
+        try:
+            self.on_message(properties, body)
+        except Exception as error:
+            print("Error al procesar el mensaje:", error)
+        finally:
+            channel.basic_ack(delivery_tag=method.delivery_tag)
 
     def suscribe(self):
         if not self._connection:

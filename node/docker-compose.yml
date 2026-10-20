@@ -10,6 +10,19 @@ services:
     environment:
         - RABBITMQ_DEFAULT_USER=admin
         - RABBITMQ_DEFAULT_PASS=admin
+  # Development SMTP server: catches every email and shows it in http://localhost:8025, nothing reaches a real inbox.
+  event-driven-mailpit:
+    image: axllent/mailpit:v1.21.8
+    container_name: 'event-driven-mailpit'
+    ports:
+        - 1025:1025
+        - 8025:8025
+    volumes:
+        - event-driven-mailpit:/data
+    environment:
+        - MP_DATABASE=/data/mailpit.db
 volumes:
   event-driven-rabbitmq:
+    driver: local
+  event-driven-mailpit:
     driver: local

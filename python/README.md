@@ -1,6 +1,6 @@
 # Consumidor de respaldo · Python
 
-Consumidor alternativo para la cola de correo, escrito con `pika` y `pydantic`. La explicación de cómo encaja en el sistema está en el [README del repositorio](../README.md).
+Consumidor alternativo para la cola de correo, escrito con `pika` y `pydantic`. Lee el evento del backend y registra un resumen en consola; **no envía correos** (eso lo hace el consumidor de Node). No lo ejecutes a la vez que el de Node. La explicación de cómo encaja en el sistema está en el [README del repositorio](../README.md).
 
 ## Instalación
 

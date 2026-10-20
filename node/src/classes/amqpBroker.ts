@@ -7,7 +7,6 @@ import { IAmqpConfig, IAmqpExchange } from "../interfaces/amqpConfig.interface";
 
 export class AmqpBroker {
   private config: IAmqpConfig;
-  private acknowledge: boolean;
   private connection: any;
   private channel: any;
   private finished: boolean;
@@ -15,12 +14,7 @@ export class AmqpBroker {
   constructor(config: IAmqpConfig) {
     this.connection = null;
     this.finished = false;
-    this.acknowledge = false;
     this.config = config;
-  }
-
-  get getNoAck() {
-    return this.acknowledge;
   }
 
   async init() {
@@ -49,6 +43,8 @@ export class AmqpBroker {
     try {
       this.connection = await amqp.connect(this.config.connection.amqpUrl);
       this.channel = await this.connection.createChannel();
+      // One message at a time: the next one is delivered after the previous is acknowledged.
+      await this.channel.prefetch(1);
       this.connection.on("error", (err: Error) => {
         this.connection = null;
         if (err.message !== "connection closing") {
@@ -129,6 +125,11 @@ export class AmqpBroker {
     queue: string,
     callBack: (message: ConsumeMessage) => Promise<void>
   ): Promise<void> {
-    await this.channel.consume(queue, callBack, { noAck: !this.getNoAck });
+    // Manual acknowledgement: a message is removed from the queue only after the consumer processed it.
+    await this.channel.consume(queue, callBack, { noAck: false });
+  }
+
+  public ack(message: ConsumeMessage) {
+    this.channel.ack(message);
   }
 }

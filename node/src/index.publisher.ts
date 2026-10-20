@@ -8,16 +8,27 @@ import { IPublisher } from "./interfaces/producer.interface";
 import { NotificationPublisher } from "./publisher/publisher.service";
 
 const publisher: IPublisher = new NotificationPublisher();
-const keys = [EMAIL_KEY, SMS_KEY, WHATSAPP_KEY];
+
+// To try the consumers without the backend: an event like the ones of the api for email, plain text for the others.
+const sampleEvent = {
+  event: "REQUEST_STATUS_CHANGED",
+  requestId: 1,
+  studentId: 1,
+  studentName: "Estudiante de prueba",
+  studentEmail: "estudiante@ucaldas.test",
+  convocationId: 1,
+  convocationTitle: "Convocatoria de prueba",
+  previousState: "PENDING",
+  newState: "ACCEPT",
+  comment: null,
+  date: new Date().toISOString(),
+};
 
 const main = async () => {
   await publisher.connect();
-  keys.forEach((key, index) =>
-    publisher.publish(
-      EXCHANGE_NAME,
-      key,
-      `Soy la notificacion del publisher ${index} ${key}`
-    )
+  publisher.publish(EXCHANGE_NAME, EMAIL_KEY, sampleEvent);
+  [SMS_KEY, WHATSAPP_KEY].forEach((key, index) =>
+    publisher.publish(EXCHANGE_NAME, key, `Soy la notificacion del publisher ${index} ${key}`)
   );
   setTimeout(async () => {
     await publisher.close();
