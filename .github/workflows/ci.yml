@@ -1,0 +1,49 @@
+# Continuous integration (SemilleroSOLID/clean-architecture-api#26): every push to main type-checks and tests the
+# Node consumer and checks the Python one. A commit that breaks the compilation or a test leaves the workflow in red.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  node:
+    name: Node consumer
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: node
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: node/package-lock.json
+      - run: npm ci
+      - name: Compile TypeScript
+        run: npx tsc --noEmit
+      - name: Tests
+        run: npm test
+      # The same image docker compose of the api builds
+      - name: Build the Docker image
+        run: docker build -t clean-architecture-notification .
+
+  python:
+    name: Python consumer
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: python
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: python/requirements.txt
+      - run: pip install -r requirements.txt
+      - name: Compile the sources
+        run: python -m compileall -q .

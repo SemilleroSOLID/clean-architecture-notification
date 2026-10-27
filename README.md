@@ -10,6 +10,7 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/SemilleroSOLID/clean-architecture-notification/actions/workflows/ci.yml"><img src="https://github.com/SemilleroSOLID/clean-architecture-notification/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI" /></a>
   <img src="https://img.shields.io/badge/RabbitMQ-3.8-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white" alt="RabbitMQ 3.8" />
   <img src="https://img.shields.io/badge/Node.js-20-5FA04E?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js 20" />
   <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript 5" />
